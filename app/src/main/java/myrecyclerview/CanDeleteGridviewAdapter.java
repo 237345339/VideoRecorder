@@ -2,6 +2,9 @@ package myrecyclerview;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,8 @@ import android.widget.TextView;
 
 import com.alanjet.videorecordertest.R;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +82,31 @@ public class CanDeleteGridviewAdapter extends RecyclerView.Adapter {
             public void onClick(View view) {
                 deleteAnimal(ivh.image_item, position, holder);
 
+            }
+        });
+        ivh.image_item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    File dir = new File(Environment.getExternalStorageDirectory()//内部存储/Test
+                            .getCanonicalFile() + "/Test"+ ivh.text_item.getText().toString().trim());
+                    if(dir.exists()){
+                        Intent intent = new Intent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        //设置intent的Action属性 
+                        intent.setAction(Intent.ACTION_VIEW);
+                        //获取文件file的MIME类型 
+                        String type = dir.getPath().substring(dir.getPath().indexOf("."),dir.getPath().length()-1);
+                        //设置intent的data和Type属性。 
+                        intent.setDataAndType(/*uri*/Uri.fromFile(dir), type);
+                        //跳转 
+                        mContext.startActivity(intent);
+                    }
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
