@@ -2,6 +2,7 @@ package com.alanjet.videorecordertest;
 
 import android.animation.ValueAnimator;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,33 +39,32 @@ public class ShowVideoActivity extends AppCompatActivity {
         gridView = (RecyclerView) findViewById(R.id.gv_show_video);
         videoList = new ArrayList<File>();
 
-        ArrayList<String> strs = new ArrayList<>();
+        /*ArrayList<String> strs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             strs.add("xxxx_" + i);
-        }
+        }*/
 
 
-      /*  try {
+        ArrayList<String> strs = new ArrayList<>();
+        try {
             File   dir = new File(Environment.getExternalStorageDirectory()//内部存储/Test
                     .getCanonicalFile() + "/Test");
             if(dir.exists()){
-                for(String str :dir.list()){
-                    strs.add(str);
-                };
-            }else{
-                dir.mkdir();
+               for(String s:dir.list()){
+                   strs.add(s);
+               };
             }
 
 
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
 
         items = new ArrayList<Map<String, Object>>();
 
         String[] strss = strs.toArray(new String[strs.size()]);
-        for (int a = 0; a < strss.length - 1; a++) {
+        for (int a = 0; a < strss.length ; a++) {
             Map<String, Object> maps = new HashMap<>();
             maps.put("imageItem", R.drawable.folder);
             maps.put("textItem", strss[a]);
@@ -74,27 +75,13 @@ public class ShowVideoActivity extends AppCompatActivity {
         MyGridLayoutManager gridLayoutManager = new MyGridLayoutManager(this, 3,
                 GridLayoutManager.VERTICAL, false);
         gridView.setLayoutManager(gridLayoutManager);
-        GridSpacingItemDecoration decoration = new GridSpacingItemDecoration(3, 2, true);
+        GridSpacingItemDecoration decoration = new GridSpacingItemDecoration(3, 5, true);
         gridView.addItemDecoration(decoration);
         gridView.setHasFixedSize(true);
 
         adapter = new CanDeleteGridviewAdapter(this, items);
 //        gridView.setHasFixedSize(true);
         gridView.setAdapter(adapter);
-
-        /*adapter.setCanDeleteCallBack(new CanDeleteGridviewAdapter.CanDeleteCallBack() {
-            @Override
-            public void pointDeleteAnimal(final View viewLayout, final int position) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        deleteAnimal(viewLayout, position);
-                    }
-                }, 1000);
-
-            }
-        });*/
-
 
     }
 
