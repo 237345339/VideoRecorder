@@ -1,6 +1,5 @@
 package com.alanjet.videorecordertest;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
@@ -8,15 +7,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.Window;
@@ -59,21 +56,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }*/
 
-        if (checkPermission()) {
-            //           mHolder = mSurfaceView.getHolder();
-            //           mHolder.addCallback(this);
-            //           mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-            //           mSurfaceView.startCallback();
 
-            initService();
-            openScreenService = new OpenScreenService(new OpenScreenService.ScreenCallBack() {
-                @Override
-                public void stopRecordReceive() {
-                    stopRecord();
-                }
-            });
-            registerReceiver(openScreenService, new IntentFilter());
-        }
+        initService();
+        openScreenService = new OpenScreenService(new OpenScreenService.ScreenCallBack() {
+            @Override
+            public void stopRecordReceive() {
+                stopRecord();
+            }
+        });
+        registerReceiver(openScreenService, new IntentFilter());
 
 
     }
@@ -85,33 +76,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         boolean isStartService = bindService(new Intent(MainActivity.this, AppLockService.class), mc
                 , Service.BIND_AUTO_CREATE);
         Log.i("ting", "" + isStartService);
-    }
-
-    private boolean checkPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-            Log.i("TEST", "Granted");
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                    == PackageManager.PERMISSION_GRANTED) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    return true;
-                } else {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 102);//1 can be another integer
-                }
-
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.RECORD_AUDIO}, 101);//1 can be another integer
-            }
-
-
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA}, 1);//1 can be another integer
-        }
-        return false;
     }
 
 
@@ -280,8 +244,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mc);
-//        unregisterReceiver(openScreenService);
+        //        unregisterReceiver(openScreenService);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            finish();
+        }
+
+        return super.onKeyDown(keyCode, event);
+
+    }
 }
 

@@ -1,10 +1,15 @@
 package com.alanjet.videorecordertest;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -50,6 +55,33 @@ public class MyMediaSurfaceView extends SurfaceView {
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
+
+    private boolean checkPermission() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.i("TEST", "Granted");
+            if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    return true;
+                } else {
+                    ActivityCompat.requestPermissions((Activity)mContext,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 102);//1 can be another integer
+                }
+
+            } else {
+                ActivityCompat.requestPermissions((Activity)mContext,
+                        new String[]{Manifest.permission.RECORD_AUDIO}, 101);//1 can be another integer
+            }
+
+
+        } else {
+            ActivityCompat.requestPermissions((Activity)mContext,
+                    new String[]{Manifest.permission.CAMERA}, 1);//1 can be another integer
+        }
+        return false;
+    }
 
     /**
      * 开始录制
