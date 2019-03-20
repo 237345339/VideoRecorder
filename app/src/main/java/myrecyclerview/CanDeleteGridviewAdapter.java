@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,47 +67,45 @@ public class CanDeleteGridviewAdapter extends RecyclerView.Adapter {
                 if ((boolean) view.getTag()) {
                     view.setTag(false);
                     beginShowCloser1(ivh.image_item);
-//                    beginShowCloserMutil();
-                    return false;
+                    //                    beginShowCloserMutil();
                 } else {
                     view.setTag(true);
                     beginHideCloser();
 
                 }
-                return false;
+                return true;
             }
 
         });
         ivh.iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteAnimal(ivh.image_item, position, holder);
+                deleteAnimal(ivh.image_item, ivh.text_item.getText().toString(), position, holder);
 
             }
         });
         ivh.image_item.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
+                String fileName = ivh.text_item.getText().toString();
                 try {
-                    File dir = new File(Environment.getExternalStorageDirectory()//内部存储/Test
-                            .getCanonicalFile() + "/Test"+ ivh.text_item.getText().toString().trim());
-                    if(dir.exists()){
+                    String path = Environment.getExternalStorageDirectory()//内部存储/Test
+                            .getCanonicalFile() + "/Test/" + fileName;
+                    File dir = new File(path);
+                    if (dir.exists()) {
                         Intent intent = new Intent();
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        //设置intent的Action属性 
                         intent.setAction(Intent.ACTION_VIEW);
-                        //获取文件file的MIME类型 
-                        String type = dir.getPath().substring(dir.getPath().indexOf("."),dir.getPath().length()-1);
-                        //设置intent的data和Type属性。 
-                        intent.setDataAndType(/*uri*/Uri.fromFile(dir), type);
-                        //跳转 
+                        String type = "video/mp4";
+                        Uri uri = Uri.parse(path);
+                        intent.setDataAndType(uri, type);
                         mContext.startActivity(intent);
+
                     }
-
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+
             }
         });
     }
@@ -120,35 +119,40 @@ public class CanDeleteGridviewAdapter extends RecyclerView.Adapter {
         }
 
     }
+
     /**
      * 为了显示所有关闭view,晃动一个
+     *
      * @param image_item
      */
     private void beginShowCloser1(ImageView image_item) {
         for (ImageView iv : tempIVHs) {
 
-            beginGunDong1(iv,image_item);
+            beginGunDong1(iv, image_item);
         }
 
     }
 
 
-    private boolean hasHuangDong=false;
+    private boolean hasHuangDong = false;
+
     /**
      * 为了显示所有关闭view,晃动所有
      */
     private void beginShowCloserMutil() {
-        for(int i=0;i<tempIV_IMGs.size();i++){
-            beginGunDongMutil(tempIVHs.get(i),tempIV_IMGs.get(i));
+        for (int i = 0; i < tempIV_IMGs.size(); i++) {
+            beginGunDongMutil(tempIVHs.get(i), tempIV_IMGs.get(i));
         }
     }
 
     /**
      * 为了让所有item都产生动画晃动的动画
+     *
      * @param img
      * @param iv
      */
-    private void beginGunDong1(final ImageView iv,ImageView img) {
+    private void beginGunDong1(final ImageView iv, ImageView img) {
+        //        iv.setBackground(mContext.getResources().getDrawable(R.mipmap.edit_clear));
         ValueAnimator va = ValueAnimator.ofInt(0, 10, 0);
         va.setDuration(50);
         va.setStartDelay(50);
@@ -158,18 +162,26 @@ public class CanDeleteGridviewAdapter extends RecyclerView.Adapter {
         gunDongAnimal.setAfterGunDongAnimal(new GunDongAnimal.AfterGunDongAnimal() {
             @Override
             public void gundongData(View view) {
-                iv.setBackground(mContext.getResources().getDrawable(R.mipmap.edit_clear));
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        iv.setBackground(mContext.getResources().getDrawable(R.mipmap.edit_clear));
+                    }
+                });
+
             }
         });
         va.addUpdateListener(gunDongAnimal);
         va.start();
     }
+
     /**
      * 为了让所有item都产生动画晃动的动画
+     *
      * @param img
      * @param iv
      */
-    private void beginGunDongMutil(final ImageView iv,ImageView img) {
+    private void beginGunDongMutil(final ImageView iv, ImageView img) {
         ValueAnimator va = ValueAnimator.ofInt(0, 10, 0);
         va.setDuration(50);
         va.setStartDelay(50);
@@ -179,8 +191,9 @@ public class CanDeleteGridviewAdapter extends RecyclerView.Adapter {
         gunDongAnimal.setAfterGunDongAnimal(new GunDongAnimal.AfterGunDongAnimal() {
             @Override
             public void gundongData(View view) {
+
                 iv.setBackground(mContext.getResources().getDrawable(R.mipmap.edit_clear));
-                hasHuangDong=true;
+                hasHuangDong = true;
             }
         });
         va.addUpdateListener(gunDongAnimal);
@@ -208,7 +221,7 @@ public class CanDeleteGridviewAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private void deleteAnimal(View view, int position, final RecyclerView.ViewHolder holder) {
+    private void deleteAnimal(ImageView view, final String fileName, int position, final RecyclerView.ViewHolder holder) {
         ValueAnimator va = ValueAnimator.ofInt(0, 360);
         va.setDuration(500);
         va.setStartDelay(50);
@@ -216,17 +229,34 @@ public class CanDeleteGridviewAdapter extends RecyclerView.Adapter {
         deleteAnimal.setAfterDeleteAnimal(new DeleteAnimal.AfterDeleteAnimal() {
             @Override
             public void deleteData(View view, int mPosition) {
-                list.remove(mPosition);
-                beginHideCloser();
+                if (deleteFile(fileName)) {
+                    list.remove(mPosition);
+                    beginHideCloser();
 
-                //                CanDeleteGridviewAdapter.this.notifyDataSetChanged();//不断的刷新如果过快会崩溃
-                CanDeleteGridviewAdapter.this.notifyItemRemoved(mPosition);
-                CanDeleteGridviewAdapter.this.notifyItemRangeChanged(mPosition, list.size() - mPosition);
-
+                    //                CanDeleteGridviewAdapter.this.notifyDataSetChanged();//不断的刷新如果过快会崩溃
+                    CanDeleteGridviewAdapter.this.notifyItemRemoved(mPosition);
+                    CanDeleteGridviewAdapter.this.notifyItemRangeChanged(mPosition, list.size() - mPosition);
+                }
             }
         });
         va.addUpdateListener(deleteAnimal);
         va.start();
+    }
+
+    private boolean deleteFile(String fileName) {
+        try {
+            String path = Environment.getExternalStorageDirectory()//内部存储/Test
+                    .getCanonicalFile() + "/Test/" + fileName;
+            File dir = new File(path);
+            if (dir.exists()) {
+                return dir.delete();
+            }
+        } catch (IOException e) {
+            return false;
+        }
+
+
+        return false;
     }
 
     public void setCanDeleteCallBack(CanDeleteCallBack canDeleteCallBack) {

@@ -39,18 +39,32 @@ public class ShowVideoActivity extends AppCompatActivity {
         gridView = (RecyclerView) findViewById(R.id.gv_show_video);
         videoList = new ArrayList<File>();
 
-//        ArrayList<String> strs = testAnimal();
+        /*ArrayList<String> strs = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            strs.add("xxxx_" + i);
+        }*/
 
 
+        ArrayList<String> strs = new ArrayList<>();
+        try {
+            File   dir = new File(Environment.getExternalStorageDirectory()//内部存储/Test
+                    .getCanonicalFile() + "/Test");
+            if(dir.exists()){
+               for(String s:dir.list()){
+                   strs.add(s);
+               };
+            }
 
-        ArrayList<String> strs =   createMVFileList();
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
         items = new ArrayList<Map<String, Object>>();
 
         String[] strss = strs.toArray(new String[strs.size()]);
-        for (int a = 0; a < strss.length - 1; a++) {
+        for (int a = 0; a < strss.length ; a++) {
             Map<String, Object> maps = new HashMap<>();
             maps.put("imageItem", R.drawable.folder);
             maps.put("textItem", strss[a]);
@@ -61,7 +75,7 @@ public class ShowVideoActivity extends AppCompatActivity {
         MyGridLayoutManager gridLayoutManager = new MyGridLayoutManager(this, 3,
                 GridLayoutManager.VERTICAL, false);
         gridView.setLayoutManager(gridLayoutManager);
-        GridSpacingItemDecoration decoration = new GridSpacingItemDecoration(3, 2, true);
+        GridSpacingItemDecoration decoration = new GridSpacingItemDecoration(3, 5, true);
         gridView.addItemDecoration(decoration);
         gridView.setHasFixedSize(true);
 
@@ -69,40 +83,6 @@ public class ShowVideoActivity extends AppCompatActivity {
 //        gridView.setHasFixedSize(true);
         gridView.setAdapter(adapter);
 
-
-
-    }
-
-    private ArrayList<String> createMVFileList() {
-        ArrayList<String> strs=new ArrayList<>();
-        try {
-            File   dir = new File(Environment.getExternalStorageDirectory()//内部存储/Test
-                    .getCanonicalFile() + "/Test");
-            if(dir.exists()){
-                for(String str :dir.list()){
-                    strs.add(str);
-                };
-            }else{
-                dir.mkdir();
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return strs;
-    }
-
-    /**
-     * 测试动画
-     * @return
-     */
-    private ArrayList<String> testAnimal() {
-        ArrayList<String> strs=new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            strs.add("xxxx_" + i);
-        }
-        return strs;
     }
 
     private void deleteAnimal(View view, int position) {

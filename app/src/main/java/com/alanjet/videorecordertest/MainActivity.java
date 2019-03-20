@@ -65,7 +65,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             //           mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
             //           mSurfaceView.startCallback();
 
-
             initService();
             openScreenService = new OpenScreenService(new OpenScreenService.ScreenCallBack() {
                 @Override
